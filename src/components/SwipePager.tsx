@@ -10,6 +10,7 @@ export default function SwipePager({ children, currentPage: controlledPage, onPa
   const [internalPage, setInternalPage] = useState(0);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
+  const [touchStartY, setTouchStartY] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Use controlled or internal state
@@ -21,9 +22,15 @@ export default function SwipePager({ children, currentPage: controlledPage, onPa
   // Handle touch events for swiping
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStart(e.targetTouches[0].clientX);
+    setTouchStartY(e.targetTouches[0].clientY);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
+    const currentY = e.targetTouches[0].clientY;
+    // If the user is scrolling vertically, do not hijack the gesture
+    if (Math.abs(currentY - touchStartY) > 12) {
+      return;
+    }
     setTouchEnd(e.targetTouches[0].clientX);
   };
 
