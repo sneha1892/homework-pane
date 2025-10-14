@@ -1,0 +1,16 @@
+// firestore.rules
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /kid_templates/{kidName} {
+      allow read, write: if true;
+    }
+    match /daily_tasks/{dailyId} {
+      allow read, write: if true;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
