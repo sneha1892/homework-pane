@@ -43,7 +43,7 @@ const subjectIcons: Record<string, string> = {
 
 const BOOK_CHOICES: Task['book'][] = ['Textbook', 'Notebook', 'Handwriting Book', 'Dictation'];
 
-export default function KidCard({ kidName, accent, tasks, onToggleTask, onAddTask, onRemoveTask, onEditTask, onQuickAddForSubject, onRemoveSubject, onUpdateTaskDescription }: KidCardProps) {
+export default function KidCard({ kidName, accent, tasks, onToggleTask, onAddTask, onRemoveTask, onQuickAddForSubject, onRemoveSubject, onUpdateTaskDescription }: KidCardProps) {
   const groupedTasks = groupTasksBySubject(tasks);
   const subjects = Object.keys(groupedTasks).sort();
   const [openPopoverFor, setOpenPopoverFor] = useState<string | null>(null);
@@ -229,7 +229,7 @@ export default function KidCard({ kidName, accent, tasks, onToggleTask, onAddTas
         </div>
         <button
           className="add-task-btn"
-          onClick={onAddTask}
+          onClick={() => onAddTask()}
           style={{ backgroundColor: accent }}
         >
           + Add Homework

@@ -321,9 +321,10 @@ body {
 .tasks-container {
   flex: 1;
   overflow-y: auto; /* scroll only task list */
-  overflow-x: hidden;
+  overflow-x: hidden; /* prevent horizontal overflow */
   padding: 0 20px;
   -webkit-overflow-scrolling: touch; /* momentum scroll on iOS */
+  width: 100%; /* constrain to parent width */
 }
 
 .no-tasks {
@@ -368,6 +369,8 @@ body {
 /* Subject groups */
 .subject-group {
   margin-bottom: 20px;
+  max-width: 100%; /* prevent overflow */
+  overflow: hidden; /* constrain children */
 }
 
 .subject-header {
@@ -426,6 +429,8 @@ body {
   flex-direction: column;
   gap: 0;
   margin-bottom: 12px;
+  max-width: 100%; /* prevent overflow */
+  overflow: hidden; /* constrain children */
 }
 
 .task-item {
@@ -438,6 +443,8 @@ body {
   border-bottom: none; /* separators within group */
   cursor: pointer;
   transition: background 0.15s ease, transform 0.15s ease;
+  max-width: 100%; /* constrain to container */
+  min-width: 0; /* allow flex children to shrink */
 }
 
 .task-item:first-child {
@@ -507,6 +514,9 @@ body {
   font-size: 14px;
   color: #111827;
   line-height: 1.35;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  min-width: 0; /* allow flex item to shrink below content size */
 }
 
 .task-type {
@@ -790,11 +800,13 @@ body {
 
 .swipe-page {
   min-width: 100%;
+  max-width: 100%; /* prevent overflow */
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   height: 100%; /* critical: allow inner .kid-card to size to viewport */
   min-height: 0;
+  overflow: hidden; /* constrain children */
 }
 
 .swipe-dots {
