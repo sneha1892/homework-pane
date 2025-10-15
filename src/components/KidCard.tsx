@@ -8,11 +8,12 @@ interface KidCardProps {
   accent: string;
   tasks: Task[];
   onToggleTask: (taskId: string, completed: boolean) => void;
-  onAddTask: () => void;
+  onAddTask: (preselectedSubject?: string) => void;
   onRemoveTask: (taskId: string) => void;
   onEditTask: (task: Task) => void;
   onQuickAddForSubject: (subject: string, book?: Task['book']) => void;
   onRemoveSubject?: (subject: string) => void;
+  onUpdateTaskDescription: (taskId: string, description: string) => void;
 }
 
 // Group tasks by subject
@@ -42,12 +43,15 @@ const subjectIcons: Record<string, string> = {
 
 const BOOK_CHOICES: Task['book'][] = ['Textbook', 'Notebook', 'Handwriting Book', 'Dictation'];
 
-export default function KidCard({ kidName, accent, tasks, onToggleTask, onAddTask, onRemoveTask, onEditTask, onQuickAddForSubject, onRemoveSubject }: KidCardProps) {
+export default function KidCard({ kidName, accent, tasks, onToggleTask, onAddTask, onRemoveTask, onEditTask, onQuickAddForSubject, onRemoveSubject, onUpdateTaskDescription }: KidCardProps) {
   const groupedTasks = groupTasksBySubject(tasks);
   const subjects = Object.keys(groupedTasks).sort();
   const [openPopoverFor, setOpenPopoverFor] = useState<string | null>(null);
   const [celebrated, setCelebrated] = useState(false);
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [editingValue, setEditingValue] = useState('');
   const cardRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const chooseBook = (subject: string, book: Task['book']) => {
     onQuickAddForSubject(subject, book);
@@ -58,6 +62,25 @@ export default function KidCard({ kidName, accent, tasks, onToggleTask, onAddTas
 
   const total = tasks.length;
   const completed = tasks.filter(t => t.completed).length;
+
+  const startEditing = (task: Task) => {
+    setEditingTaskId(task.id);
+    setEditingValue(task.description);
+    setTimeout(() => inputRef.current?.focus(), 10);
+  };
+
+  const saveEditing = () => {
+    if (editingTaskId) {
+      onUpdateTaskDescription(editingTaskId, editingValue.trim());
+      setEditingTaskId(null);
+      setEditingValue('');
+    }
+  };
+
+  const cancelEditing = () => {
+    setEditingTaskId(null);
+    setEditingValue('');
+  };
 
   useEffect(() => {
     if (total > 0 && completed === total && !celebrated) {
@@ -125,9 +148,9 @@ export default function KidCard({ kidName, accent, tasks, onToggleTask, onAddTas
                 <div style={{ marginLeft: 'auto', position: 'relative' }}>
                   <button 
                     className="quick-add-btn" 
-                    onClick={() => setOpenPopoverFor(openPopoverFor === subject ? null : subject)}
+                    onClick={() => onAddTask(subject)}
                     style={{ color: accent }}
-                    title={`Quick add ${subject} task`}
+                    title={`Add ${subject} task`}
                   >
                     +
                   </button>
@@ -166,13 +189,29 @@ export default function KidCard({ kidName, accent, tasks, onToggleTask, onAddTas
                     />
                     <span className="task-content">
                       <span className="task-type">{task.book}:</span>
-                      <span 
-                        className="task-description"
-                        onClick={() => onEditTask(task)}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        {task.description || <span style={{ color: '#999', fontStyle: 'italic' }}>Tap to add note</span>}
-                      </span>
+                      {editingTaskId === task.id ? (
+                        <input
+                          ref={inputRef}
+                          type="text"
+                          className="task-description-input"
+                          value={editingValue}
+                          onChange={(e) => setEditingValue(e.target.value)}
+                          onBlur={saveEditing}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') saveEditing();
+                            if (e.key === 'Escape') cancelEditing();
+                          }}
+                          placeholder="Add description..."
+                        />
+                      ) : (
+                        <span 
+                          className="task-description"
+                          onClick={() => startEditing(task)}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          {task.description || <span style={{ color: '#999', fontStyle: 'italic' }}>Tap to add note</span>}
+                        </span>
+                      )}
                     </span>
                     <button className="remove-task-btn" onClick={() => onRemoveTask(task.id)} aria-label="Remove task">×</button>
                   </div>

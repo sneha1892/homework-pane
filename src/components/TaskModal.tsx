@@ -14,12 +14,13 @@ interface TaskModalProps {
   }) => void;
   availableKids: string[];
   preselectedKid?: string;
+  preselectedSubject?: string;
 }
 
 const subjects: string[] = ['English', 'Malayalam', 'Maths', 'GK', 'Hindi'];
 const bookTypes: Array<'Textbook' | 'Notebook' | 'Handwriting Book' | 'Dictation'> = ['Textbook', 'Notebook', 'Handwriting Book', 'Dictation'];
 
-export default function TaskModal({ isOpen, onClose, onSave, availableKids, preselectedKid }: TaskModalProps) {
+export default function TaskModal({ isOpen, onClose, onSave, availableKids, preselectedKid, preselectedSubject }: TaskModalProps) {
   const [kidName, setKidName] = useState(preselectedKid || '');
   const [subject, setSubject] = useState<string>('English');
   const [book, setBook] = useState<'Textbook' | 'Notebook' | 'Handwriting Book' | 'Dictation'>('Textbook');
@@ -36,7 +37,7 @@ export default function TaskModal({ isOpen, onClose, onSave, availableKids, pres
   // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
-      setSubject('English');
+      setSubject(preselectedSubject || 'English');
       setBook('Textbook');
       setDescription('');
       setIsAddingNewKid(false);
@@ -47,7 +48,7 @@ export default function TaskModal({ isOpen, onClose, onSave, availableKids, pres
         setKidName(availableKids[0]);
       }
     }
-  }, [isOpen, preselectedKid, availableKids]);
+  }, [isOpen, preselectedKid, preselectedSubject, availableKids]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

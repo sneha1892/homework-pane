@@ -129,6 +129,17 @@ body {
   color: #777;
 }
 
+.date-item.clickable {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.date-item.clickable:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.55);
+  transform: translateY(-1px);
+}
+
 /* Selected date as single-line with optional TODAY badge */
 .selected-date {
   display: flex;
@@ -507,6 +518,19 @@ body {
   cursor: pointer;
 }
 
+.task-description-input {
+  flex: 1;
+  border: none;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--brand-blue);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 14px;
+  color: #111827;
+  outline: none;
+  font-family: inherit;
+}
+
 .task-page {
   color: var(--text-secondary);
   font-size: 13px;
@@ -549,6 +573,8 @@ body {
   cursor: pointer;
   flex-shrink: 0;
   transition: all 0.2s;
+  position: relative;
+  z-index: 10;
 }
 
 .remove-task-btn:hover {
@@ -783,15 +809,15 @@ body {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.7);
-  background: rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(15, 23, 42, 0.25);
+  background: rgba(15, 23, 42, 0.2);
   cursor: pointer;
   transition: all 0.2s;
   padding: 0;
 }
 
 .swipe-dot.active {
-  background: rgba(60, 157, 241, 0.8);
+  background: #3c9df1;
   border-color: #3c9df1;
   transform: scale(1.2);
 }

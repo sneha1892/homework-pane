@@ -13,6 +13,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedKid, setSelectedKid] = useState<string | undefined>();
+  const [preselectedSubject, setPreselectedSubject] = useState<string | undefined>();
   const [useSwipe, setUseSwipe] = useState(true);
   const [editingTask, setEditingTask] = useState<(Task & { kidName?: string }) | null>(null);
 
@@ -90,8 +91,9 @@ function App() {
     });
   };
 
-  const openModalForKid = (kidName: string) => {
+  const openModalForKid = (kidName: string, subject?: string) => {
     setSelectedKid(kidName);
+    setPreselectedSubject(subject);
     setIsModalOpen(true);
   };
 
@@ -99,6 +101,20 @@ function App() {
     setSelectedKid(kidName);
     setEditingTask({ ...task, kidName });
     setIsModalOpen(true);
+  };
+
+  const handleUpdateTaskDescription = async (kidName: string, taskId: string, description: string) => {
+    try {
+      const task = getTasksForKid(kidName).find(t => t.id === taskId);
+      if (task) {
+        await upsertTask(formatDateKey(currentDate), kidName, {
+          ...task,
+          description
+        });
+      }
+    } catch (error) {
+      console.error('Error updating task description:', error);
+    }
   };
 
   // Navigate dates
@@ -135,14 +151,18 @@ function App() {
         </button>
         
         <div className="date-strip">
-          <span className="date-item muted">{format(subDays(currentDate, 1), 'EEE d')}</span>
+          <span className="date-item muted clickable" onClick={goToPreviousDay}>
+            {format(subDays(currentDate, 1), 'EEE d')}
+          </span>
           <div className={`date-item selected-date ${isSameDay(currentDate, new Date()) ? 'is-today' : ''}`}>
             <span className="selected-date-text">{format(currentDate, 'EEE, MMM d')}</span>
             {isSameDay(currentDate, new Date()) && (
               <span className="today-badge">TODAY</span>
             )}
           </div>
-          <span className="date-item muted">{format(addDays(currentDate, 1), 'EEE d')}</span>
+          <span className="date-item muted clickable" onClick={goToNextDay}>
+            {format(addDays(currentDate, 1), 'EEE d')}
+          </span>
         </div>
 
         <button className="date-nav-btn" onClick={goToNextDay} aria-label="Next day">
@@ -191,11 +211,12 @@ function App() {
                 accent={getAccentForKid(kid)}
                 tasks={getTasksForKid(kid)}
                 onToggleTask={(taskId, completed) => handleToggleTask(kid, taskId, completed)}
-                onAddTask={() => openModalForKid(kid)}
+                onAddTask={(subject) => openModalForKid(kid, subject)}
                 onRemoveTask={(taskId) => deleteTaskLine(formatDateKey(currentDate), kid, taskId).catch(console.error)}
                 onEditTask={(task) => openEditForTask(kid, task)}
                 onQuickAddForSubject={(subject, book) => handleQuickAdd(kid, subject, book)}
                 onRemoveSubject={(subject) => handleRemoveSubject(kid, subject)}
+                onUpdateTaskDescription={(taskId, description) => handleUpdateTaskDescription(kid, taskId, description)}
               />
             ))}
           </SwipePager>
@@ -209,11 +230,12 @@ function App() {
                 accent={getAccentForKid(kid)}
                 tasks={getTasksForKid(kid)}
                 onToggleTask={(taskId, completed) => handleToggleTask(kid, taskId, completed)}
-                onAddTask={() => openModalForKid(kid)}
+                onAddTask={(subject) => openModalForKid(kid, subject)}
                 onRemoveTask={(taskId) => deleteTaskLine(formatDateKey(currentDate), kid, taskId).catch(console.error)}
                 onEditTask={(task) => openEditForTask(kid, task)}
                 onQuickAddForSubject={(subject, book) => handleQuickAdd(kid, subject, book)}
                 onRemoveSubject={(subject) => handleRemoveSubject(kid, subject)}
+                onUpdateTaskDescription={(taskId, description) => handleUpdateTaskDescription(kid, taskId, description)}
               />
             ))}
           </div>
@@ -227,11 +249,13 @@ function App() {
         onClose={() => {
           setIsModalOpen(false);
           setSelectedKid(undefined);
+          setPreselectedSubject(undefined);
           setEditingTask(null);
         }}
         onSave={handleUpsertTask}
         availableKids={displayKids}
         preselectedKid={editingTask?.kidName || selectedKid}
+        preselectedSubject={preselectedSubject}
       />
     </div>
   );
